@@ -47,39 +47,46 @@ def get_conf_mtrx(data,threashold):
 
 def accuracy(m): 
     '''Takes the confusion matrix as input and calculates the accuracy
-    (TP + TN) / (TP + FP + FN + TN) '''
+    (TP + TN) / (TP + FP + FN + TN) if denominator is zero the result must be set to 0'''
+    if cm[0][0] == 0: return 0
     return float(m[0][0]+m[1][1])/(sum(m[0])+sum(m[1]))
 
 def matthew_cc(m):
     '''Takes the confusion matrix as input and returns the Matthews correlation coefficient'''
     d=(m[0][0]+m[1][0])*(m[0][0]+m[0][1])*(m[1][1]+m[1][0])*(m[1][1]+m[0][1])
+    if d == 0: d = 1
     return float((m[0][0]*m[1][1]-m[0][1]*m[1][0])/math.sqrt(d))
 
 def tpr(cm):
     ''' returns the true positive rate'''
+    if cm[0][0] == 0: return 0
     return cm[0][0]/(cm[0][0]+cm[1][0])
 
 def fpr(cm):
     ''' returns the false positive rate'''
+    if cm[0][1] == 0: return 0
     return cm[0][1]/(cm[0][1]+cm[1][1])
 
 def tnr(cm):
     ''' returns the true negative rate'''
+    if cm[1][1] == 0: return 0
     return cm[1][1]/(cm[1][1]+cm[0][1])
 
 def ppv(cm):
     '''returns the positive predictive value = tp/ (tp + fp) = n of tp / all positive calls'''
+    if cm[0][0] == 0: return 0
     return cm[0][0]/(cm[0][0]+cm[0][1])
 
 def npv(cm):
     '''returns the negative predictive value = tn/ (tn + fn) = n of tn / all negative calls'''
+    if cm[1][1] == 0: return 0
     return cm[1][1]/(cm[1][1]+cm[1][0])
 
 if __name__== "__main__":
     filename=sys.argv[1]
     #th=float(sys.argv[2])
     data = get_hmm(filename)
-    for i in range(20): # provides 20 diff e-vla threasholds
+    for i in range(200): # provides 200 diff e-vla threasholds
         th=10**-i  # initial threashold: th
         cm= get_conf_mtrx(data,th) # takes eval and class (neg or pos)
         print('Threshold:',th,'\nACC:', accuracy(cm),'\nMatthews:',matthew_cc(cm), "\nTPR:", tpr(cm), '\nFPR:', fpr(cm), '\nTNR:', tnr(cm), '\nPositivePredVal:', ppv(cm), '\nNegPredVal:', npv(cm), "\nThe Matrix:", cm,)
